@@ -1,2 +1,6 @@
 data
 .envrc
+
+
+.env.tmp
+__debug_bin*

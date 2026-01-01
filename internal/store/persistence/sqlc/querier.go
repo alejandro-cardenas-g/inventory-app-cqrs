@@ -11,6 +11,9 @@ import (
 type Querier interface {
 	CreateProduct(ctx context.Context, arg CreateProductParams) (int64, error)
 	GetProductByID(ctx context.Context, id int64) (Product, error)
+	GetUnprocessedOutboxEvents(ctx context.Context, limit int32) ([]OutboxEvent, error)
+	MarkProcessedOutboxEvent(ctx context.Context, arg MarkProcessedOutboxEventParams) error
+	SaveOutboxEvent(ctx context.Context, arg SaveOutboxEventParams) error
 }
 
 var _ Querier = (*Queries)(nil)

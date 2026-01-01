@@ -8,11 +8,10 @@ import (
 )
 
 type Container struct {
-	Uow *persistence.TxManager
-	CreateProductHandler *products.CreateProductHandler
+	Uow                   *persistence.TxManager
+	CreateProductHandler  *products.CreateProductHandler
 	GetProductByIDHandler *qproducts.GetProductByIDHandler
 }
-
 
 func InjectServices(cfg config.Config) *Container {
 	persistance := persistence.NewStore(cfg.Store)
@@ -21,7 +20,7 @@ func InjectServices(cfg config.Config) *Container {
 	container.Uow = persistance.TxManager
 
 	// products
-	container.CreateProductHandler = products.NewCreateProductHandler(persistance.Products)
+	container.CreateProductHandler = products.NewCreateProductHandler(persistance.Products, persistance.Outbox, persistance.TxManager)
 	container.GetProductByIDHandler = qproducts.NewGetProductByIDHandler(persistance.Products)
 
 	return container

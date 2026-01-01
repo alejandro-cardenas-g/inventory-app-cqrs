@@ -8,6 +8,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type OutboxEvent struct {
+	ID            int64              `json:"id"`
+	EventID       pgtype.UUID        `json:"event_id"`
+	EventType     string             `json:"event_type"`
+	AggregateType string             `json:"aggregate_type"`
+	AggregateID   int64              `json:"aggregate_id"`
+	Payload       []byte             `json:"payload"`
+	OccurredAt    pgtype.Timestamptz `json:"occurred_at"`
+	ProcessedAt   pgtype.Timestamptz `json:"processed_at"`
+	RetryCount    int32              `json:"retry_count"`
+	CorrelationID pgtype.UUID        `json:"correlation_id"`
+	CausationID   pgtype.UUID        `json:"causation_id"`
+}
+
 type Product struct {
 	ID            int64              `json:"id"`
 	Sku           string             `json:"sku"`

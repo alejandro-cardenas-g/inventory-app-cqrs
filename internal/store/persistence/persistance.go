@@ -12,10 +12,11 @@ import (
 
 type Persistance struct {
 	TxManager *TxManager
-	Products *ProductRepository
+	Products  *ProductRepository
+	Outbox    *OutboxRepository
 }
 
-func NewStore(cfg config.StoreConfig) (*Persistance) {
+func NewStore(cfg config.StoreConfig) *Persistance {
 
 	poolCfg, err := pgxpool.ParseConfig(cfg.URL)
 
@@ -31,7 +32,7 @@ func NewStore(cfg config.StoreConfig) (*Persistance) {
 	poolCfg.MaxConnIdleTime = 1 * time.Minute
 	poolCfg.HealthCheckPeriod = 30 * time.Second
 
-	pool, err :=  pgxpool.NewWithConfig(context.Background(), poolCfg)
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolCfg)
 
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +45,8 @@ func NewStore(cfg config.StoreConfig) (*Persistance) {
 	store := &Persistance{}
 
 	store.Products = NewProductRepository(pool)
-
+	store.Outbox = NewOutboxRepository(pool)
+	store.TxManager = NewTxManager(pool)
 	return store
 }
 
