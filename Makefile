@@ -18,6 +18,10 @@ migration-down:
 run:
 	@go run cmd/api/main.go
 
+.PHONY: run-worker
+run-worker:
+	@go run cmd/worker/main.go
+
 .PHONY: sqlc
 sqlc:
 	@sqlc generate

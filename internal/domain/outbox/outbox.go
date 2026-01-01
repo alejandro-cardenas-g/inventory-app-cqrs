@@ -41,6 +41,10 @@ func New(
 	}
 }
 
+func (e *Event) SetID(id int64) {
+	e.id = id
+}
+
 func (e *Event) MarkProcessed(t time.Time) {
 	e.processedAt = &t
 }

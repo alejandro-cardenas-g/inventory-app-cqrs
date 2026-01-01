@@ -17,3 +17,9 @@ RETURNING id;
 
 -- name: GetProductByID :one
 SELECT * FROM products WHERE id = $1 LIMIT 1;
+
+-- name: GetProductForReadModel :one
+SELECT p.*, c.name as category_name FROM products p
+LEFT JOIN categories c ON p.category_id = c.id
+WHERE p.id = $1
+LIMIT 1;

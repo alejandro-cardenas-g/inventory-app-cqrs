@@ -3,6 +3,7 @@ package products
 import (
 	"context"
 	"encoding/json"
+	"inventory_cqrs/internal/constants"
 	"inventory_cqrs/internal/domain/outbox"
 	"inventory_cqrs/internal/domain/products"
 	p "inventory_cqrs/internal/store/persistence"
@@ -50,7 +51,7 @@ func (h *CreateProductHandler) Handler(ctx context.Context, command CreateProduc
 		}
 
 		event := outbox.New(
-			products.ProductCreatedEventType,
+			string(constants.ProductCreatedEvent),
 			"Product",
 			result.ID,
 			payload,

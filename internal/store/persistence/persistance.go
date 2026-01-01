@@ -11,9 +11,10 @@ import (
 )
 
 type Persistance struct {
-	TxManager *TxManager
-	Products  *ProductRepository
-	Outbox    *OutboxRepository
+	TxManager   *TxManager
+	Products    *ProductRepository
+	Outbox      *OutboxRepository
+	ProductView *ProductViewRepository
 }
 
 func NewStore(cfg config.StoreConfig) *Persistance {

@@ -11,8 +11,11 @@ import (
 type Querier interface {
 	CreateProduct(ctx context.Context, arg CreateProductParams) (int64, error)
 	GetProductByID(ctx context.Context, id int64) (Product, error)
+	GetProductForReadModel(ctx context.Context, id int64) (GetProductForReadModelRow, error)
 	GetUnprocessedOutboxEvents(ctx context.Context, limit int32) ([]OutboxEvent, error)
-	MarkProcessedOutboxEvent(ctx context.Context, arg MarkProcessedOutboxEventParams) error
+	IncrementRetryCount(ctx context.Context, id int64) error
+	MarkEventsAsProcessing(ctx context.Context, dollar_1 []int64) error
+	MarkProcessedOutboxEvent(ctx context.Context, id int64) error
 	SaveOutboxEvent(ctx context.Context, arg SaveOutboxEventParams) error
 }
 

@@ -84,3 +84,49 @@ func (q *Queries) GetProductByID(ctx context.Context, id int64) (Product, error)
 	)
 	return i, err
 }
+
+const getProductForReadModel = `-- name: GetProductForReadModel :one
+SELECT p.id, p.sku, p.name, p.description, p.category_id, p.brand, p.price_amount, p.price_currency, p.stock, p.is_active, p.attributes, p.created_at, p.updated_at, c.name as category_name FROM products p
+LEFT JOIN categories c ON p.category_id = c.id
+WHERE p.id = $1
+LIMIT 1
+`
+
+type GetProductForReadModelRow struct {
+	ID            int64              `json:"id"`
+	Sku           string             `json:"sku"`
+	Name          string             `json:"name"`
+	Description   pgtype.Text        `json:"description"`
+	CategoryID    int64              `json:"category_id"`
+	Brand         string             `json:"brand"`
+	PriceAmount   int64              `json:"price_amount"`
+	PriceCurrency string             `json:"price_currency"`
+	Stock         int32              `json:"stock"`
+	IsActive      bool               `json:"is_active"`
+	Attributes    []byte             `json:"attributes"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	CategoryName  pgtype.Text        `json:"category_name"`
+}
+
+func (q *Queries) GetProductForReadModel(ctx context.Context, id int64) (GetProductForReadModelRow, error) {
+	row := q.db.QueryRow(ctx, getProductForReadModel, id)
+	var i GetProductForReadModelRow
+	err := row.Scan(
+		&i.ID,
+		&i.Sku,
+		&i.Name,
+		&i.Description,
+		&i.CategoryID,
+		&i.Brand,
+		&i.PriceAmount,
+		&i.PriceCurrency,
+		&i.Stock,
+		&i.IsActive,
+		&i.Attributes,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CategoryName,
+	)
+	return i, err
+}

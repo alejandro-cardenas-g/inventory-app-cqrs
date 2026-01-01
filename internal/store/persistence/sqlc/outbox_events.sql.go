@@ -12,7 +12,7 @@ import (
 )
 
 const getUnprocessedOutboxEvents = `-- name: GetUnprocessedOutboxEvents :many
-SELECT id, event_id, event_type, aggregate_type, aggregate_id, payload, occurred_at, processed_at, retry_count, correlation_id, causation_id FROM outbox_events WHERE processed_at IS NULL LIMIT $1
+SELECT id, event_id, event_type, aggregate_type, aggregate_id, payload, occurred_at, processed_at, status, retry_count, correlation_id, causation_id FROM outbox_events WHERE status = 'pending' LIMIT $1 FOR UPDATE SKIP LOCKED
 `
 
 func (q *Queries) GetUnprocessedOutboxEvents(ctx context.Context, limit int32) ([]OutboxEvent, error) {
@@ -33,6 +33,7 @@ func (q *Queries) GetUnprocessedOutboxEvents(ctx context.Context, limit int32) (
 			&i.Payload,
 			&i.OccurredAt,
 			&i.ProcessedAt,
+			&i.Status,
 			&i.RetryCount,
 			&i.CorrelationID,
 			&i.CausationID,
@@ -47,17 +48,30 @@ func (q *Queries) GetUnprocessedOutboxEvents(ctx context.Context, limit int32) (
 	return items, nil
 }
 
-const markProcessedOutboxEvent = `-- name: MarkProcessedOutboxEvent :exec
-UPDATE outbox_events SET processed_at = $1 WHERE id = $2
+const incrementRetryCount = `-- name: IncrementRetryCount :exec
+UPDATE outbox_events SET retry_count = retry_count + 1 WHERE id = $1 and status = 'pending'
 `
 
-type MarkProcessedOutboxEventParams struct {
-	ProcessedAt pgtype.Timestamptz `json:"processed_at"`
-	ID          int64              `json:"id"`
+func (q *Queries) IncrementRetryCount(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, incrementRetryCount, id)
+	return err
 }
 
-func (q *Queries) MarkProcessedOutboxEvent(ctx context.Context, arg MarkProcessedOutboxEventParams) error {
-	_, err := q.db.Exec(ctx, markProcessedOutboxEvent, arg.ProcessedAt, arg.ID)
+const markEventsAsProcessing = `-- name: MarkEventsAsProcessing :exec
+UPDATE outbox_events SET status = 'processing' WHERE id = ANY($1::bigint[])
+`
+
+func (q *Queries) MarkEventsAsProcessing(ctx context.Context, dollar_1 []int64) error {
+	_, err := q.db.Exec(ctx, markEventsAsProcessing, dollar_1)
+	return err
+}
+
+const markProcessedOutboxEvent = `-- name: MarkProcessedOutboxEvent :exec
+UPDATE outbox_events SET status = 'done', processed_at = now() WHERE id = $1
+`
+
+func (q *Queries) MarkProcessedOutboxEvent(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, markProcessedOutboxEvent, id)
 	return err
 }
 
@@ -72,9 +86,10 @@ INSERT INTO outbox_events (
     processed_at,
     retry_count,
     correlation_id,
-    causation_id
+    causation_id,
+    status
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
 `
 
 type SaveOutboxEventParams struct {

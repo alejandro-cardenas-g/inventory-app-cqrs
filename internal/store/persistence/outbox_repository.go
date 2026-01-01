@@ -4,7 +4,6 @@ import (
 	"context"
 	"inventory_cqrs/internal/domain/outbox"
 	db "inventory_cqrs/internal/store/persistence/sqlc"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -68,6 +67,7 @@ func (r *OutboxRepository) Save(ctx context.Context, e *outbox.Event) error {
 
 func (r *OutboxRepository) GetUnprocessed(ctx context.Context, limit int) ([]*outbox.Event, error) {
 	eventsDB, err := r.queries.GetUnprocessedOutboxEvents(ctx, int32(limit))
+
 	if err != nil {
 		return nil, err
 	}
@@ -95,13 +95,20 @@ func (r *OutboxRepository) GetUnprocessed(ctx context.Context, limit int) ([]*ou
 			correlationID,
 			causationID,
 		)
+
+		events[i].SetID(e.ID)
 	}
 	return events, nil
 }
 
 func (r *OutboxRepository) MarkProcessed(ctx context.Context, id int64) error {
-	return r.queries.MarkProcessedOutboxEvent(ctx, db.MarkProcessedOutboxEventParams{
-		ProcessedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-		ID:          id,
-	})
+	return r.queries.MarkProcessedOutboxEvent(ctx, id)
+}
+
+func (r *OutboxRepository) MarkEventsAsProcessing(ctx context.Context, ids []int64) error {
+	return r.queries.MarkEventsAsProcessing(ctx, ids)
+}
+
+func (r *OutboxRepository) IncrementRetryCount(ctx context.Context, id int64) error {
+	return r.queries.IncrementRetryCount(ctx, id)
 }
