@@ -4,6 +4,7 @@ import (
 	"inventory_cqrs/internal/api/dtos"
 	"inventory_cqrs/internal/application/commands/products"
 	qproducts "inventory_cqrs/internal/application/queries/products"
+	dproducts "inventory_cqrs/internal/domain/products"
 	"net/http"
 	"strconv"
 
@@ -13,6 +14,9 @@ import (
 func (s *App) BindProductsRoutes(router chi.Router) {
 	router.Route("/products", func(r chi.Router) {	
 		r.Post("/", s.CreateProduct)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.GetProductByID)
+		})
 	})
 }
 
@@ -41,8 +45,14 @@ func (s *App) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
-		return
+		switch err {
+		case dproducts.ErrSKUAlreadyExists:
+			writeJSONError(w, http.StatusConflict, err.Error())
+			return
+		default:
+			writeJSONError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	writeJSON(w, http.StatusCreated, dtos.CreateProductResultDTO{
@@ -65,8 +75,14 @@ func (s *App) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
-		return
+		switch err {
+		case dproducts.ErrProductNotFound:
+			writeJSONError(w, http.StatusNotFound, err.Error())
+			return
+		default:
+			writeJSONError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
 	writeJSON(w, http.StatusOK, dtos.GetProductByIDResultDTO{

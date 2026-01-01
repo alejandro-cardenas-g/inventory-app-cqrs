@@ -2,14 +2,14 @@ package products
 
 import (
 	"context"
-	"inventory_cqrs/internal/store/persistance"
+	"inventory_cqrs/internal/store/persistence"
 )
 
 type CreateProductHandler struct {
-	productsRepository *persistance.ProductRepository
+	productsRepository *persistence.ProductRepository
 }
 
-func NewCreateProductHandler(productsRepository *persistance.ProductRepository) *CreateProductHandler {
+func NewCreateProductHandler(productsRepository *persistence.ProductRepository) *CreateProductHandler {
 	return &CreateProductHandler{productsRepository: productsRepository}
 }
 

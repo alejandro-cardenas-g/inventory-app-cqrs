@@ -4,18 +4,18 @@ import (
 	"inventory_cqrs/internal/application/commands/products"
 	qproducts "inventory_cqrs/internal/application/queries/products"
 	"inventory_cqrs/internal/config"
-	"inventory_cqrs/internal/store/persistance"
+	"inventory_cqrs/internal/store/persistence"
 )
 
 type Container struct {
-	Uow *persistance.TxManager
+	Uow *persistence.TxManager
 	CreateProductHandler *products.CreateProductHandler
 	GetProductByIDHandler *qproducts.GetProductByIDHandler
 }
 
 
 func InjectServices(cfg config.Config) *Container {
-	persistance := persistance.NewStore(cfg.Store)
+	persistance := persistence.NewStore(cfg.Store)
 
 	container := &Container{}
 	container.Uow = persistance.TxManager

@@ -13,7 +13,7 @@ type CreateProductDTO struct {
 	Price       int64               	`json:"price" validate:"required,gt=0"`
 	Currency    string                 `json:"currency" validate:"required,len=3,uppercase"`
 
-	Stock       int                    `json:"stock" validate:"gte=0"`
+	Stock       int32                   `json:"stock" validate:"gte=0"`
 
 	Attributes  map[string]any         `json:"attributes" validate:"omitempty,dive,required"`
 }
@@ -31,7 +31,7 @@ type GetProductByIDResultDTO struct {
 	Brand string `json:"brand"`
 	Price int64 `json:"price"`
 	Currency string `json:"currency"`
-	Stock int `json:"stock"`
+	Stock int32 `json:"stock"`
 	Attributes map[string]any `json:"attributes"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

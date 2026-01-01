@@ -10,7 +10,7 @@ type CreateProductCommand struct {
 	Brand       string
 	Price       int64
 	Currency    string
-	Stock       int 
+	Stock       int32
 	Attributes  map[string]any
 }
 
@@ -20,5 +20,5 @@ type GetProductByIDCommand struct {
 }
 
 func (c *CreateProductCommand) ToProduct() (*products.Product, error) {
-	return products.New(c.SKU, c.Name, c.CategoryID, c.Price, c.Currency, c.Stock, c.Attributes)
+	return products.New(c.SKU, c.Name, c.CategoryID, c.Price, c.Currency, c.Stock, c.Attributes, c.Description, c.Brand)
 }

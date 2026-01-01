@@ -13,7 +13,7 @@ type Product struct {
 
 	priceCents int64
 	currency   string
-	stock      int
+	stock      int32
 
 	isActive   bool
 	attributes map[string]any
@@ -29,8 +29,10 @@ func New(
 	categoryID int64,
 	priceCents int64,
 	currency string,
-	stock int,
+	stock int32,
 	attributes map[string]any,
+	description string,
+	brand string,
 ) (*Product, error) {
 
 	if priceCents <= 0 {
@@ -52,7 +54,18 @@ func New(
 		attributes: attributes,
 		createdAt:  time.Now(),
 		updatedAt:  time.Now(),
+		description: description,
+		brand: brand,
 	}, nil
+}
+
+func (p *Product) SetID(id int64) {
+	p.id = id
+}
+
+func (p *Product) SetAuditory(createdAt time.Time, updatedAt time.Time) {
+	p.createdAt = createdAt
+	p.updatedAt = updatedAt
 }
 
 func (p *Product) GetID() int64 {
@@ -87,7 +100,7 @@ func (p *Product) GetCurrency() string {
 	return p.currency
 }
 
-func (p *Product) GetStock() int {
+func (p *Product) GetStock() int32 {
 	return p.stock
 }
 
@@ -101,4 +114,8 @@ func (p *Product) GetCreatedAt() time.Time {
 
 func (p *Product) GetUpdatedAt() time.Time {
 	return p.updatedAt
+}
+
+func (p *Product) IsActive() bool {
+	return p.isActive
 }

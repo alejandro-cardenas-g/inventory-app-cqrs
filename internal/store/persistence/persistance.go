@@ -1,7 +1,8 @@
-package persistance
+package persistence
 
 import (
 	"context"
+	"fmt"
 	"inventory_cqrs/internal/config"
 	"log"
 	"time"
@@ -22,6 +23,8 @@ func NewStore(cfg config.StoreConfig) (*Persistance) {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Database initalized")
+
 	poolCfg.MaxConns = int32(cfg.MaxOpenConns)
 	poolCfg.MinConns = int32(cfg.MaxIdleConns)
 	poolCfg.MaxConnLifetime = time.Duration(cfg.ConnMaxLifetime)
@@ -40,9 +43,7 @@ func NewStore(cfg config.StoreConfig) (*Persistance) {
 
 	store := &Persistance{}
 
-	store.Products = &ProductRepository{
-		db: pool,
-	}
+	store.Products = NewProductRepository(pool)
 
 	return store
 }

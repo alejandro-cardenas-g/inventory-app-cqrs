@@ -3,16 +3,16 @@ package products
 import (
 	"context"
 	"errors"
-	"inventory_cqrs/internal/store/persistance"
+	"inventory_cqrs/internal/store/persistence"
 )
 
 var ErrProductNotFound = errors.New("product not found")
 
 type GetProductByIDHandler struct {
-	productsRepository *persistance.ProductRepository
+	productsRepository *persistence.ProductRepository
 }
 
-func NewGetProductByIDHandler(productsRepository *persistance.ProductRepository) *GetProductByIDHandler {
+func NewGetProductByIDHandler(productsRepository *persistence.ProductRepository) *GetProductByIDHandler {
 	return &GetProductByIDHandler{productsRepository: productsRepository}
 }
 
